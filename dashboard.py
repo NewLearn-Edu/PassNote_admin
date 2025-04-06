@@ -3,7 +3,6 @@ import zipfile
 from io import BytesIO
 import pandas as pd
 import io
-from sample_data import sample_data
 import numpy as np
 import random
 import calendar
@@ -157,18 +156,16 @@ def show_sale_stats():
 def show_excel_upload():
     import io
 
-    buffer = io.BytesIO()
-    with pd.ExcelWriter(buffer, engine="xlsxwriter") as writer:
-        sample_data.to_excel(writer, index=False, sheet_name="샘플")
-    buffer.seek(0)
+    with open("sample_format.zip", "rb") as f:
+        zip_buffer = io.BytesIO(f.read())
 
     col_download, col_save, _ = st.columns([1, 1, 5])
     with col_download:
         st.download_button(
             label="📥 엑셀 형식 다운로드",
-            data=buffer,
-            file_name="sample_format.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            data=zip_buffer,
+            file_name="sample_format.zip",
+            mime="application/zip"
         )
     with col_save:
         if st.button("💾 저장하기"):
