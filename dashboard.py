@@ -47,15 +47,10 @@ def show_home():
 def show_user_stats():
     st.subheader("📈 사용자 통계")
     
-    if "uploaded_excel_df" in st.session_state:
+    if "uploaded_excel_df" in st.session_state and "purchase_table" in st.session_state:
         df = st.session_state["uploaded_excel_df"].copy()
+        purchase_table = st.session_state["purchase_table"].copy()
         
-        purchase_table = pd.DataFrame({
-            "구매자": [f"사용자{i+1}" for i in range(len(df))],
-            "구매한책": df["책이름"].sample(frac=1, replace=True).reset_index(drop=True),
-            "가격": [random.randint(10000, 30000) for _ in range(len(df))],
-            "구매일": pd.date_range(end=pd.Timestamp.today(), periods=len(df)).strftime("%Y-%m-%d")
-        })
         purchase_counts = purchase_table["구매한책"].value_counts().reset_index()
         purchase_counts.columns = ["책이름", "구매수"]
         df = df.merge(purchase_counts, on="책이름", how="left")
@@ -89,7 +84,7 @@ def show_user_stats():
         st.bar_chart(sorted_books_for_chart.sort_values(by="구매수", ascending=False).head(top_n))
 
     else:
-        st.warning("업로드된 데이터가 없습니다. '엑셀 업로드' 탭에서 파일을 업로드하고 저장하세요.")
+        st.warning("업로드된 데이터 또는 구매내역이 없습니다. '엑셀 업로드' 탭에서 파일을 업로드하고 저장하세요.")
 
 def show_sale_stats():
     st.subheader("🏠 분기별 판매량")
@@ -124,21 +119,10 @@ def show_excel_upload():
                 purchase_data["가격"] = purchase_data["책이름"].map(df.set_index("책이름")["가격"])
                 purchase_data["구매일"] = pd.to_datetime(np.random.choice(pd.date_range(start="2024-01-01", end="2025-04-06"), num_records)).strftime("%Y-%m-%d")
 
-                # 기존 df를 새 Excel로 저장하고, 구매내역 시트 추가
-                buffer = io.BytesIO()
-                with pd.ExcelWriter(buffer, engine="xlsxwriter") as writer:
-                    df.to_excel(writer, index=False, sheet_name="책 데이터")
-                    purchase_data.to_excel(writer, index=False, sheet_name="구매내역")
-                buffer.seek(0)
+                # 세션 상태에 저장
+                st.session_state["purchase_table"] = purchase_data
 
-                st.download_button(
-                    label="📥 구매내역 포함된 엑셀 저장",
-                    data=buffer,
-                    file_name="book_with_purchases.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
-
-                st.success("📁 데이터와 구매내역이 저장되었습니다! 다운로드 버튼을 통해 저장하세요.")
+                st.success("✅ 구매내역이 세션에 저장되었습니다.")
             else:
                 st.warning("❗ 먼저 엑셀 파일을 업로드해주세요.")
     
