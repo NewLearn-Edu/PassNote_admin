@@ -87,7 +87,46 @@ def show_user_stats():
         st.warning("업로드된 데이터 또는 구매내역이 없습니다. '엑셀 업로드' 탭에서 파일을 업로드하고 저장하세요.")
 
 def show_sale_stats():
-    st.subheader("🏠 분기별 판매량")
+    st.subheader("📆 분기별 판매량")
+
+    if "purchase_table" not in st.session_state:
+        st.warning("구매내역 데이터가 없습니다. '엑셀 업로드' 탭에서 파일을 업로드하고 저장하세요.")
+        return
+
+    df = st.session_state["purchase_table"].copy()
+    df["구매일"] = pd.to_datetime(df["구매일"])
+    df["년도"] = df["구매일"].dt.year
+    df["월"] = df["구매일"].dt.month
+
+    # 현재 연도 기준 필터링
+    current_year = pd.Timestamp.today().year
+    df = df[df["년도"] == current_year]
+
+    options = {
+        "1분기": [1, 2, 3],
+        "2분기": [4, 5, 6],
+        "3분기": [7, 8, 9],
+        "4분기": [10, 11, 12],
+        "상반기": [1, 2, 3, 4, 5, 6],
+        "하반기": [7, 8, 9, 10, 11, 12]
+    }
+
+    period = st.selectbox("조회할 기간을 선택하세요", list(options.keys()))
+    selected_months = options[period]
+
+    filtered_df = df[df["월"].isin(selected_months)]
+
+    st.markdown(f"### 📦 {current_year}년 {period} 판매량 요약")
+    st.write(f"총 판매 수: {len(filtered_df)}건")
+    st.write(f"총 판매 금액: {filtered_df['가격'].sum():,}원")
+    st.write(f"평균 책 가격: {filtered_df['가격'].mean():.2f}원")
+
+    st.markdown("### 🧾 판매 테이블")
+    st.dataframe(filtered_df)
+
+    st.markdown("### 📊 월별 판매 건수")
+    month_counts = filtered_df["월"].value_counts().sort_index()
+    st.bar_chart(month_counts)
 
 def show_excel_upload():
     import io
