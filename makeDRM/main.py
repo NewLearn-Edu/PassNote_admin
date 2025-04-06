@@ -37,7 +37,7 @@ def encrypt_pdfs():
             for page in reader.pages:
                 writer.add_page(page)
 
-            writer.encrypt("password")  # 암호 설정
+            writer.encrypt("passnote")  # 암호 설정
             with open(output_path, "wb") as f:
                 writer.write(f)
 
