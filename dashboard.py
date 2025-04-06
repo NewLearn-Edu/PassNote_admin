@@ -188,30 +188,8 @@ def show_excel_upload():
             else:
                 st.warning("❗ 먼저 엑셀 파일을 업로드해주세요.")
     
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.subheader("📂 엑셀 업로드")
-        uploaded_file = st.file_uploader("엑셀 파일을 업로드하세요", type=["xlsx"], key="excel")
-    
-    with col2:
-        st.subheader("🗜️ ZIP 파일 업로드")
-        uploaded_zip = st.file_uploader("ZIP 파일을 업로드하세요", type=["zip"], key="zip")
-    
-    if uploaded_file is not None:
-        try:
-            df = pd.read_excel(uploaded_file)
-            expected_columns = sample_data.columns.tolist()
-            uploaded_columns = df.columns.tolist()
-            if expected_columns != uploaded_columns:
-                st.warning("⚠️ 업로드된 파일의 컬럼이 샘플 형식과 다릅니다. 형식을 확인해주세요.")
-            st.markdown(f"### 📊 업로드된 엑셀 테이블 ({len(df)} 개)")
-            st.dataframe(df)
-
-            st.session_state["uploaded_excel_df"] = df
-            
-        except Exception as e:
-            st.error(f"파일을 읽는 중 오류 발생: {e}")
+    st.subheader("🗜️ ZIP 파일 업로드")
+    uploaded_zip = st.file_uploader("ZIP 파일을 업로드하세요", type=["zip"], key="zip")
 
     if uploaded_zip is not None:
         try:
@@ -222,15 +200,13 @@ def show_excel_upload():
                 for f in file_list:
                     st.write(f"- {f}")
 
-                excel_files = [f for f in file_list if f.endswith(".xlsx")]
-                st.markdown(f"### 📑 총 {len(excel_files)}개의 엑셀 파일")
-                for file_name in excel_files:
-                    with zf.open(file_name) as file:
-                        try:
-                            df = pd.read_excel(file)
-                            st.markdown(f"#### 📄 {file_name}")
-                            st.dataframe(df)
-                        except Exception as e:
-                            st.error(f"{file_name} 파일을 읽는 중 오류 발생: {e}")
+                if "sample_format.xlsx" in file_list:
+                    with zf.open("sample_format.xlsx") as file:
+                        df = pd.read_excel(file)
+                        st.markdown(f"### 📊 업로드된 엑셀 테이블 ({len(df)} 개)")
+                        st.dataframe(df)
+                        st.session_state["uploaded_excel_df"] = df
+                else:
+                    st.warning("ZIP 파일에 'sample_format.xlsx' 파일이 포함되어 있지 않습니다.")
         except Exception as e:
-            st.error(f"{file_name} 파일을 읽는 중 오류 발생: {e}")
+            st.error(f"ZIP 파일 처리 중 오류 발생: {e}")
