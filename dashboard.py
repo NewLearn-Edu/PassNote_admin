@@ -51,7 +51,7 @@ def show_user_stats():
         df = st.session_state["uploaded_excel_df"].copy()
         purchase_table = st.session_state["purchase_table"].copy()
         
-        purchase_counts = purchase_table["구매한책"].value_counts().reset_index()
+        purchase_counts = purchase_table["책이름"].value_counts().reset_index()
         purchase_counts.columns = ["책이름", "구매수"]
         df = df.merge(purchase_counts, on="책이름", how="left")
         df["구매수"] = df["구매수"].fillna(0).astype(int)
