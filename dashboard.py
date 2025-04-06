@@ -102,8 +102,6 @@ def show_sale_stats():
     current_year = pd.Timestamp.today().year
     df = df[df["년도"] == current_year]
 
-    period_type = st.radio("조회 방식 선택", ["분기 / 반기", "직접 기간 선택"])
-
     options = {
         "1분기": [1, 2, 3],
         "2분기": [4, 5, 6],
@@ -114,7 +112,7 @@ def show_sale_stats():
         "전기": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     }
 
-    period = st.radio("기간 선택", list(options.keys()) + ["직접 기간 선택"])
+    period = st.radio("기간 선택", list(options.keys()) + ["직접 기간 선택"], horizontal=True)
 
     if period != "직접 기간 선택":
         selected_months = options[period]
