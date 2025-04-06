@@ -11,13 +11,13 @@ def show():
     st.title("📊 관리자 대시보드")
 
     # 사이드바 내비게이션
-    menu = st.sidebar.radio("📂 메뉴 선택", ["홈", "사용자 통계", "기간별 판매량", "엑셀 업로드"])
+    menu = st.sidebar.radio("📂 메뉴 선택", ["홈", "사용자 통계", "분기별 판매량", "엑셀 업로드"])
 
     if menu == "홈":
         show_home()
     elif menu == "사용자 통계":
         show_user_stats()
-    elif menu == "기간별 판매량":
+    elif menu == "분기별 판매량":
         show_sale_stats()
     elif menu == "엑셀 업로드":
         show_excel_upload()
@@ -102,21 +102,29 @@ def show_sale_stats():
     current_year = pd.Timestamp.today().year
     df = df[df["년도"] == current_year]
 
-    options = {
-        "1분기": [1, 2, 3],
-        "2분기": [4, 5, 6],
-        "3분기": [7, 8, 9],
-        "4분기": [10, 11, 12],
-        "상반기": [1, 2, 3, 4, 5, 6],
-        "하반기": [7, 8, 9, 10, 11, 12]
-    }
+    period_type = st.radio("조회 방식 선택", ["분기 / 반기", "직접 기간 선택"])
 
-    period = st.selectbox("조회할 기간을 선택하세요", list(options.keys()))
-    selected_months = options[period]
+    if period_type == "분기 / 반기":
+        options = {
+            "1분기": [1, 2, 3],
+            "2분기": [4, 5, 6],
+            "3분기": [7, 8, 9],
+            "4분기": [10, 11, 12],
+            "상반기": [1, 2, 3, 4, 5, 6],
+            "하반기": [7, 8, 9, 10, 11, 12],
+            "전기": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        }
 
-    filtered_df = df[df["월"].isin(selected_months)]
+        period = st.selectbox("기간 선택", list(options.keys()))
+        selected_months = options[period]
+        filtered_df = df[df["월"].isin(selected_months)]
 
-    st.markdown(f"### 📦 {current_year}년 {period} 판매량 요약")
+    else:
+        start_date = st.date_input("시작일", value=pd.to_datetime(f"{current_year}-01-01"))
+        end_date = st.date_input("종료일", value=pd.to_datetime(f"{current_year}-12-31"))
+        filtered_df = df[(df["구매일"] >= pd.to_datetime(start_date)) & (df["구매일"] <= pd.to_datetime(end_date))]
+
+    st.markdown(f"### 📦 {current_year}년 판매량 요약")
     st.write(f"총 판매 수: {len(filtered_df)}건")
     st.write(f"총 판매 금액: {filtered_df['가격'].sum():,}원")
     st.write(f"평균 책 가격: {filtered_df['가격'].mean():.2f}원")
