@@ -6,6 +6,7 @@ import io
 from sample_data import sample_data
 import numpy as np
 import random
+import calendar
 
 def show():
     st.title("📊 관리자 대시보드")
@@ -116,15 +117,26 @@ def show_sale_stats():
 
     if period != "직접 기간 선택":
         selected_months = options[period]
-        filtered_df = df[df["월"].isin(selected_months)]
+        start_month = min(selected_months)
+        end_month = max(selected_months)
+
+        # 시작일과 종료일 계산
+        start_date = pd.Timestamp(f"{current_year}-{start_month:02d}-01")
+        last_day = calendar.monthrange(current_year, end_month)[1]
+        end_date = pd.Timestamp(f"{current_year}-{end_month:02d}-{last_day}")
+
+        filtered_df = df[(df["구매일"] >= start_date) & (df["구매일"] <= end_date)]
     else:
         with st.expander("📅 기간 직접 선택"):
             start_date = st.date_input("시작일", value=pd.to_datetime(f"{current_year}-01-01"))
             end_date = st.date_input("종료일", value=pd.to_datetime(f"{current_year}-12-31"))
         filtered_df = df[(df["구매일"] >= pd.to_datetime(start_date)) & (df["구매일"] <= pd.to_datetime(end_date))]
 
-    st.markdown(f"### 📦 판매량 요약 ({filtered_df['구매일'].min().strftime('%Y-%m-%d')} ~ {filtered_df['구매일'].max().strftime('%Y-%m-%d')})")
-    
+    if not filtered_df.empty:
+        st.markdown(f"### 📦 판매량 요약 ({filtered_df['구매일'].min().strftime('%Y-%m-%d')} ~ {filtered_df['구매일'].max().strftime('%Y-%m-%d')})")
+    else:
+        st.markdown("### 📦 판매량 요약 (선택한 기간에 데이터가 없습니다.)")
+
     if filtered_df.empty:
         st.warning("선택한 기간에 해당하는 판매 데이터가 없습니다.")
         return
