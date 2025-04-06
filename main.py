@@ -5,12 +5,7 @@ st.set_page_config(
     page_title="패스노트 관리자 페이지",
     page_icon="📝",
     layout="wide",
-    initial_sidebar_state="expanded",
-    menu_items={
-        'Get Help': None,
-        'Report a bug': None,
-        'About': None
-    }
+    initial_sidebar_state="expanded"
 )
 
 # 예시 사용자 정보 (실제 앱에선 DB 또는 환경변수 사용 추천)
