@@ -104,24 +104,25 @@ def show_sale_stats():
 
     period_type = st.radio("조회 방식 선택", ["분기 / 반기", "직접 기간 선택"])
 
-    if period_type == "분기 / 반기":
-        options = {
-            "1분기": [1, 2, 3],
-            "2분기": [4, 5, 6],
-            "3분기": [7, 8, 9],
-            "4분기": [10, 11, 12],
-            "상반기": [1, 2, 3, 4, 5, 6],
-            "하반기": [7, 8, 9, 10, 11, 12],
-            "전기": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-        }
+    options = {
+        "1분기": [1, 2, 3],
+        "2분기": [4, 5, 6],
+        "3분기": [7, 8, 9],
+        "4분기": [10, 11, 12],
+        "상반기": [1, 2, 3, 4, 5, 6],
+        "하반기": [7, 8, 9, 10, 11, 12],
+        "전기": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    }
 
-        period = st.selectbox("기간 선택", list(options.keys()))
+    period = st.radio("기간 선택", list(options.keys()) + ["직접 기간 선택"])
+
+    if period != "직접 기간 선택":
         selected_months = options[period]
         filtered_df = df[df["월"].isin(selected_months)]
-
     else:
-        start_date = st.date_input("시작일", value=pd.to_datetime(f"{current_year}-01-01"))
-        end_date = st.date_input("종료일", value=pd.to_datetime(f"{current_year}-12-31"))
+        with st.expander("📅 기간 직접 선택"):
+            start_date = st.date_input("시작일", value=pd.to_datetime(f"{current_year}-01-01"))
+            end_date = st.date_input("종료일", value=pd.to_datetime(f"{current_year}-12-31"))
         filtered_df = df[(df["구매일"] >= pd.to_datetime(start_date)) & (df["구매일"] <= pd.to_datetime(end_date))]
 
     st.markdown(f"### 📦 {current_year}년 판매량 요약")
