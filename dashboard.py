@@ -124,6 +124,11 @@ def show_sale_stats():
         filtered_df = df[(df["구매일"] >= pd.to_datetime(start_date)) & (df["구매일"] <= pd.to_datetime(end_date))]
 
     st.markdown(f"### 📦 판매량 요약 ({filtered_df['구매일'].min().strftime('%Y-%m-%d')} ~ {filtered_df['구매일'].max().strftime('%Y-%m-%d')})")
+    
+    if filtered_df.empty:
+        st.warning("선택한 기간에 해당하는 판매 데이터가 없습니다.")
+        return
+
     st.write(f"총 판매 수: {len(filtered_df)}건")
     st.write(f"총 판매 금액: {filtered_df['가격'].sum():,}원")
     st.write(f"평균 책 가격: {filtered_df['가격'].mean():.2f}원")
