@@ -129,10 +129,10 @@ def show_sale_stats():
             start_date = st.date_input("시작일", value=pd.to_datetime(f"{current_year}-01-01"), key="start_date")
             end_date = st.date_input("종료일", value=pd.to_datetime(f"{current_year}-12-31"), key="end_date")
 
-        if start_date and end_date:
-            filtered_df = df[(df["구매일"] >= pd.to_datetime(start_date)) & (df["구매일"] <= pd.to_datetime(end_date))]
-        else:
-            filtered_df = pd.DataFrame()
+    if start_date and end_date:
+        filtered_df = df[(df["구매일"] >= pd.to_datetime(start_date)) & (df["구매일"] <= pd.to_datetime(end_date))]
+    else:
+        filtered_df = pd.DataFrame()
 
     if not filtered_df.empty:
         st.markdown(f"### 📦 판매량 요약 ({start_date.strftime('%Y-%m-%d')} ~ {end_date.strftime('%Y-%m-%d')})")
