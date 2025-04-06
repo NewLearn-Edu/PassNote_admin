@@ -123,7 +123,7 @@ def show_sale_stats():
             end_date = st.date_input("종료일", value=pd.to_datetime(f"{current_year}-12-31"))
         filtered_df = df[(df["구매일"] >= pd.to_datetime(start_date)) & (df["구매일"] <= pd.to_datetime(end_date))]
 
-    st.markdown(f"### 📦 {current_year}년 판매량 요약")
+    st.markdown(f"### 📦 판매량 요약 ({filtered_df['구매일'].min().strftime('%Y-%m-%d')} ~ {filtered_df['구매일'].max().strftime('%Y-%m-%d')})")
     st.write(f"총 판매 수: {len(filtered_df)}건")
     st.write(f"총 판매 금액: {filtered_df['가격'].sum():,}원")
     st.write(f"평균 책 가격: {filtered_df['가격'].mean():.2f}원")
