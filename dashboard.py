@@ -135,7 +135,7 @@ def show_sale_stats():
             filtered_df = pd.DataFrame()
 
     if not filtered_df.empty:
-        st.markdown(f"### 📦 판매량 요약 ({filtered_df['구매일'].min().strftime('%Y-%m-%d')} ~ {filtered_df['구매일'].max().strftime('%Y-%m-%d')})")
+        st.markdown(f"### 📦 판매량 요약 ({start_date.strftime('%Y-%m-%d')} ~ {end_date.strftime('%Y-%m-%d')})")
     else:
         st.markdown("### 📦 판매량 요약 (선택한 기간에 데이터가 없습니다.)")
 
