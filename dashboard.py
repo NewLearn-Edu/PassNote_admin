@@ -124,13 +124,15 @@ def show_sale_stats():
         start_date = pd.Timestamp(f"{current_year}-{start_month:02d}-01")
         last_day = calendar.monthrange(current_year, end_month)[1]
         end_date = pd.Timestamp(f"{current_year}-{end_month:02d}-{last_day}")
-
-        filtered_df = df[(df["구매일"] >= start_date) & (df["구매일"] <= end_date)]
     else:
         with st.expander("📅 기간 직접 선택"):
-            start_date = st.date_input("시작일", value=pd.to_datetime(f"{current_year}-01-01"))
-            end_date = st.date_input("종료일", value=pd.to_datetime(f"{current_year}-12-31"))
-        filtered_df = df[(df["구매일"] >= pd.to_datetime(start_date)) & (df["구매일"] <= pd.to_datetime(end_date))]
+            start_date = st.date_input("시작일", value=pd.to_datetime(f"{current_year}-01-01"), key="start_date")
+            end_date = st.date_input("종료일", value=pd.to_datetime(f"{current_year}-12-31"), key="end_date")
+
+        if start_date and end_date:
+            filtered_df = df[(df["구매일"] >= pd.to_datetime(start_date)) & (df["구매일"] <= pd.to_datetime(end_date))]
+        else:
+            filtered_df = pd.DataFrame()
 
     if not filtered_df.empty:
         st.markdown(f"### 📦 판매량 요약 ({filtered_df['구매일'].min().strftime('%Y-%m-%d')} ~ {filtered_df['구매일'].max().strftime('%Y-%m-%d')})")
