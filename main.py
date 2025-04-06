@@ -19,12 +19,6 @@ USERS = {
     "뉴런": "1234"
 }
 
-# # 세션 상태 초기화
-# if "logged_in" not in st.session_state:
-#     st.session_state.logged_in = False
-# if "username" not in st.session_state:
-#     st.session_state.username = ""
-
 # 로그인 함수
 def login(username, password):
     if username in USERS and USERS[username] == password:
