@@ -1,10 +1,9 @@
-
-
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import pandas as pd
 from PyPDF2 import PdfReader, PdfWriter
+import zipfile
 
 def encrypt_pdfs():
     try:
@@ -40,6 +39,18 @@ def encrypt_pdfs():
             writer.encrypt("passnote")  # 암호 설정
             with open(output_path, "wb") as f:
                 writer.write(f)
+
+        import zipfile
+
+        zip_path = os.path.join(os.getcwd(), "encrypted_package.zip")
+        with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
+            # Add the Excel file
+            zipf.write(file_path, arcname=os.path.basename(file_path))
+
+            # Add files from the output folder
+            for filename in os.listdir(output_folder):
+                file_full_path = os.path.join(output_folder, filename)
+                zipf.write(file_full_path, arcname=os.path.join("pdfs", filename))
 
         messagebox.showinfo("완료", "PDF 암호화가 완료되었습니다.")
 
