@@ -188,25 +188,14 @@ def show_excel_upload():
             else:
                 st.warning("❗ 먼저 엑셀 파일을 업로드해주세요.")
     
-    st.subheader("🗜️ ZIP 파일 업로드")
-    uploaded_zip = st.file_uploader("ZIP 파일을 업로드하세요", type=["zip"], key="zip")
+    st.subheader("📄 엑셀 파일 업로드")
+    uploaded_excel = st.file_uploader("엑셀 파일을 업로드하세요", type=["xlsx"], key="excel")
 
-    if uploaded_zip is not None:
+    if uploaded_excel is not None:
         try:
-            with zipfile.ZipFile(BytesIO(uploaded_zip.read())) as zf:
-                file_list = zf.namelist()
-                st.success(f"ZIP 파일에 {len(file_list)}개의 파일이 포함되어 있습니다.")
-                st.write("📂 포함된 파일 목록:")
-                for f in file_list:
-                    st.write(f"- {f}")
-
-                if "sample_format.xlsx" in file_list:
-                    with zf.open("sample_format.xlsx") as file:
-                        df = pd.read_excel(file)
-                        st.markdown(f"### 📊 업로드된 엑셀 테이블 ({len(df)} 개)")
-                        st.dataframe(df)
-                        st.session_state["uploaded_excel_df"] = df
-                else:
-                    st.warning("ZIP 파일에 'sample_format.xlsx' 파일이 포함되어 있지 않습니다.")
+            df = pd.read_excel(uploaded_excel)
+            st.markdown(f"### 📊 업로드된 엑셀 테이블 ({len(df)} 개)")
+            st.dataframe(df)
+            st.session_state["uploaded_excel_df"] = df
         except Exception as e:
-            st.error(f"ZIP 파일 처리 중 오류 발생: {e}")
+            st.error(f"엑셀 파일 처리 중 오류 발생: {e}")
