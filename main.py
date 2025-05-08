@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import dashboard
 
-API_BASE = "https://prod-alb-949821740.ap-northeast-2.elb.amazonaws.com"
+API_BASE = "http://prod-alb-949821740.ap-northeast-2.elb.amazonaws.com"
 
 st.set_page_config(
     page_title="패스노트 관리자 페이지",
