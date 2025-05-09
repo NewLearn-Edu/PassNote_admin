@@ -8,21 +8,15 @@ import requests
 API_BASE = "http://prod-alb-949821740.ap-northeast-2.elb.amazonaws.com"
 
 def show():
-    with open("sample_format.zip", "rb") as f:
-        zip_buffer = io.BytesIO(f.read())
-
-    uploaded_excel = None
-    uploaded_zip = None
-
     col_for_mac, col_for_window = st.columns(2)
     with col_for_mac:
         st.download_button(
-            label="📥 암호화 실행기 for MacOS",
-            data=zip_buffer,
-            file_name="sample_format.zip",
-            mime="application/zip"
+            label="📥 암호화 실행기 for window",
+            data=open("makeDRM\dist\main.exe", 'rb').read(),  # 파일을 바이너리 모드로 읽어 data로 전달
+            file_name="main.exe",  # 다운로드될 파일 이름
+            mime="application/octet-stream"  # EXE 파일의 MIME 타입
         )
-    
+
     st.subheader("📄 업로드 파일 업로드")
     col_excel, col_zip = st.columns(2)
     with col_excel:
