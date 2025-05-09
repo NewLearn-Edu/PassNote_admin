@@ -9,8 +9,10 @@ def show():
     st.subheader("🏠 홈")
     st.write("이곳은 관리자 홈 화면입니다.")
     st.info("필요한 요약 정보 또는 알림을 여기에 표시할 수 있습니다.")
-    if "uploaded_excel_df" in st.session_state:
-        df = st.session_state["uploaded_excel_df"].copy()
+    
+    df = fetch_books_by_company()
+    
+    if df.empty:
         if "노출" not in df.columns:
             df["노출"] = True
 
@@ -27,11 +29,8 @@ def show():
     else:
         st.warning("📁 업로드된 엑셀 파일이 없습니다. '엑셀 업로드' 탭에서 파일을 업로드하고 저장하세요.")
 
-
-
-
-def fetch_bookList():
-    url = f"{API_BASE}/upload"
+def fetch_books_by_company():
+    url = f"{API_BASE}/api/books/company"
 
     token = st.session_state.get("token")
     if not token:
@@ -44,23 +43,8 @@ def fetch_bookList():
 
     response = requests.get(url, headers=headers)
 
-    if response.status_code == 200:
-        with open(save_path, "wb") as f:
-            f.write(response.content)
-        print(f"이미지를 성공적으로 저장했습니다: {save_path}")
-    else:
-        print(f"이미지 다운로드 실패. 상태 코드: {response.status_code}, 응답: {response.text}")
-
-
-def fetch_books_by_company():
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Accept": "application/json"
-    }
-
-    response = requests.get(url, headers=headers)
-
     if response.status_code != 200:
+        print(response.text)
         st.error(f"도서 정보를 가져오지 못했습니다. 상태 코드: {response.status_code}")
         return pd.DataFrame()
 
