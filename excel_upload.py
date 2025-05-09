@@ -2,48 +2,89 @@ import io
 import zipfile
 import streamlit as st
 import numpy as np
+import pandas as pd
+import requests
+
+API_BASE = "http://prod-alb-949821740.ap-northeast-2.elb.amazonaws.com"
 
 def show():
     with open("sample_format.zip", "rb") as f:
         zip_buffer = io.BytesIO(f.read())
 
-    col_download, col_save, _ = st.columns([1, 1, 5])
-    with col_download:
+    uploaded_excel = None
+    uploaded_zip = None
+
+    col_for_mac, col_for_window = st.columns(2)
+    with col_for_mac:
         st.download_button(
-            label="📥 엑셀 형식 다운로드",
+            label="📥 암호화 실행기 for MacOS",
             data=zip_buffer,
             file_name="sample_format.zip",
             mime="application/zip"
         )
-    with col_save:
-        if st.button("💾 저장하기"):
-            if "uploaded_excel_df" in st.session_state:
-                df = st.session_state["uploaded_excel_df"].copy()
-
-                # 구매내역 데이터 생성
-                num_records = 1000
-                purchase_data = pd.DataFrame({
-                    "구매자": [f"사용자{i % 100 + 1}" for i in range(num_records)],
-                    "책이름": [random.choice(df["책이름"].tolist()) for _ in range(num_records)],
-                })
-                purchase_data["가격"] = purchase_data["책이름"].map(df.set_index("책이름")["가격"])
-                purchase_data["구매일"] = pd.to_datetime(np.random.choice(pd.date_range(start="2024-01-01", end="2025-04-06"), num_records)).strftime("%Y-%m-%d")
-
-                # 세션 상태에 저장
-                st.session_state["purchase_table"] = purchase_data
-
-                st.success("✅ 구매내역이 세션에 저장되었습니다.")
-            else:
-                st.warning("❗ 먼저 엑셀 파일을 업로드해주세요.")
     
-    st.subheader("📄 엑셀 파일 업로드")
-    uploaded_excel = st.file_uploader("엑셀 파일을 업로드하세요", type=["xlsx"], key="excel")
+    st.subheader("📄 업로드 파일 업로드")
+    col_excel, col_zip = st.columns(2)
+    with col_excel:
+        uploaded_excel = st.file_uploader("엑셀 파일을 업로드하세요", type=["xlsx"], key="excel")
+    with col_zip:
+        uploaded_zip = st.file_uploader(".zip 파일을 업로드하세요", type=["zip"], key="zip")
+
+    if st.button("💾 저장하기"):
+        if uploaded_excel is not None and uploaded_zip is not None:
+            excel_bytes = uploaded_excel.read()
+
+            response = upload(excel_bytes, uploaded_zip)
+            if response is not None:
+                st.write(f"서버 응답: {response.status_code} {response.text}")
+
+        st.success("✅ 구매내역이 세션에 저장되었습니다.")
 
     if uploaded_excel is not None:
         try:
             df = pd.read_excel(uploaded_excel)
             st.markdown(f"### 📊 업로드된 엑셀 테이블 ({len(df)} 개)")
             st.dataframe(df)
-            st.session_state["uploaded_excel_df"] = df
         except Exception as e:
             st.error(f"엑셀 파일 처리 중 오류 발생: {e}")
+
+def upload(excel_file: bytes, zip_files: list):
+    url = f"{API_BASE}/upload"
+
+    token = st.session_state.get("token")
+    if not token:
+        st.error("토큰이 세션에 존재하지 않습니다. 먼저 로그인하세요.")
+        return
+
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+
+    files = [
+        ("file", ("books.xlsx", excel_file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+    ]
+    for zip_file in zip_files:
+        print(zip_file)
+    #     files.append(("file", (f"book{i + 1}.zip", zip_file, "application/zip")))
+
+    # response = requests.post(url, headers=headers, files=files)
+    # print(response)
+    # return response
+
+def unzip(uploaded_zip):
+    if uploaded_zip is not None:
+        try:
+            zip_file = zipfile.ZipFile(uploaded_zip)
+
+            inner_zip_files = []
+            for name in zip_file.namelist():
+                if name.endswith(".zip"):
+                    inner_data = zip_file.read(name)  # 내부 zip 파일의 바이트
+                    inner_zip_files.append(inner_data)
+
+            st.write(f"📦 내부 ZIP 파일 개수: {len(inner_zip_files)}개")
+            return [(name, zip_file.read(name)) for name in zip_file.namelist() if name.endswith(".zip")]
+        except Exception as e:
+            st.error(f"압축 해제 중 오류 발생: {e}")
+            return []
+    return []

@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 
+API_BASE = "http://prod-alb-949821740.ap-northeast-2.elb.amazonaws.com"
+
 def show():
     st.subheader("📈 사용자 통계")
     
@@ -42,3 +44,36 @@ def show():
 
     else:
         st.warning("업로드된 데이터 또는 구매내역이 없습니다. '엑셀 업로드' 탭에서 파일을 업로드하고 저장하세요.")
+
+def fetch_purchase_history(api_url: str, token: str) -> pd.DataFrame:
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json"
+    }
+
+    response = requests.post(api_url, headers=headers)
+
+    if response.status_code != 200:
+        raise Exception(f"API 호출 실패: {response.status_code}, {response.text}")
+
+    data = response.json()  # 예: list of dicts
+
+    # 예시 데이터에서 사용하는 컬럼 이름에 맞게 변환
+    df = pd.DataFrame(data)
+    
+    if df.empty:
+        df = pd.DataFrame(columns=["회원명", "도서명", "가격", "구매일", "환불여부"])
+        return df
+
+    df.rename(columns={
+        "memberName": "회원명",
+        "bookName": "도서명",
+        "price": "가격",
+        "createdAt": "구매일",
+        "isRefunded": "환불여부"
+    }, inplace=True)
+
+    df["구매일"] = pd.to_datetime(df["구매일"])
+    df["가격"] = pd.to_numeric(df["가격"], errors="coerce")
+    
+    return df

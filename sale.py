@@ -1,15 +1,24 @@
 import streamlit as st
 import pandas as pd
 import calendar
+import requests
+
+API_BASE = "http://prod-alb-949821740.ap-northeast-2.elb.amazonaws.com"
 
 def show():
     st.subheader("📆 분기별 판매량")
-
-    if "purchase_table" not in st.session_state:
-        st.warning("구매내역 데이터가 없습니다. '엑셀 업로드' 탭에서 파일을 업로드하고 저장하세요.")
+    
+    api_url = f"{API_BASE}/api/books/company/purchase/history"
+    
+    try:
+        df = fetch_purchase_history(api_url)
+    except Exception as e:
+        st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {e}")
         return
 
-    df = st.session_state["purchase_table"].copy()
+    if df.empty:
+        st.warning("구매내역 데이터가 없습니다.")
+
     df["구매일"] = pd.to_datetime(df["구매일"])
     df["년도"] = df["구매일"].dt.year
     df["월"] = df["구매일"].dt.month
@@ -68,3 +77,43 @@ def show():
     st.markdown("### 📊 월별 판매 건수")
     month_counts = filtered_df["월"].value_counts().sort_index()
     st.bar_chart(month_counts)
+
+def fetch_purchase_history(api_url: str) -> pd.DataFrame:
+    token = st.session_state.get("token")
+    if not token:
+        st.error("토큰이 세션에 존재하지 않습니다. 먼저 로그인하세요.")
+        df = pd.DataFrame(columns=["회원명", "도서명", "가격", "구매일", "환불여부"])
+        return df
+    
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json"
+    }
+
+    response = requests.post(api_url, headers=headers)
+
+    if response.status_code != 200:
+        raise Exception(f"API 호출 실패: {response.status_code}, {response.text}")
+
+    data = response.json()  # 예: list of dicts
+
+    # 예시 데이터에서 사용하는 컬럼 이름에 맞게 변환
+    df = pd.DataFrame(data)
+    
+    if df.empty:
+        df = pd.DataFrame(columns=["회원명", "도서명", "가격", "구매일", "환불여부"])
+        return df
+
+    df.rename(columns={
+        "memberName": "회원명",
+        "bookName": "도서명",
+        "price": "가격",
+        "createdAt": "구매일",
+        "isRefunded": "환불여부"
+    }, inplace=True)
+
+    df["구매일"] = pd.to_datetime(df["구매일"])
+    df["가격"] = pd.to_numeric(df["가격"], errors="coerce")
+    
+    return df
