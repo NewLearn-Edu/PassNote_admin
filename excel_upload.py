@@ -29,10 +29,11 @@ def show():
             excel_bytes = uploaded_excel.read()
 
             response = upload(excel_bytes, uploaded_zip)
+            
             if response is not None:
+                st.success("✅ 구매내역이 세션에 저장되었습니다.")
+            else:
                 st.write(f"서버 응답: {response.status_code} {response.text}")
-
-        st.success("✅ 구매내역이 세션에 저장되었습니다.")
 
     if uploaded_excel is not None:
         try:
