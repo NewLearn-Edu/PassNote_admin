@@ -19,10 +19,7 @@ def login(username, password):
             "email": username,
             "password": password
         })
-        print(response.status_code)
-        print(response.cookies)
-
-
+        
         if response.status_code == 200 and "distributorToken" in response.cookies:
             st.session_state.logged_in = True
             st.session_state.username = username
