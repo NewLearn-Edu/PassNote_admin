@@ -12,7 +12,7 @@ def show():
     with col_for_mac:
         st.download_button(
             label="📥 암호화 실행기 for window",
-            data=open("makeDRM\dist\main.exe", 'rb').read(),  # 파일을 바이너리 모드로 읽어 data로 전달
+            data=open("main.exe", 'rb').read(),  # 파일을 바이너리 모드로 읽어 data로 전달
             file_name="main.exe",  # 다운로드될 파일 이름
             mime="application/octet-stream"  # EXE 파일의 MIME 타입
         )
