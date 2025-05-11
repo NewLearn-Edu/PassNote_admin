@@ -12,17 +12,9 @@ def show():
     
     df = fetch_books_by_company()
     
-    if df.empty:
-        if "노출" not in df.columns:
-            df["노출"] = True
+    if not df.empty:
+        visible_books = df[df["공개여부"] == True]
 
-        # 무조건 10%는 False로 설정
-        num_false = int(len(df) * 0.1)
-        if num_false > 0:
-            false_indices = random.sample(range(len(df)), num_false)
-            df.loc[:, "노출"] = True
-            df.loc[false_indices, "노출"] = False
-        visible_books = df[df["노출"] == True]
         st.markdown(f"### ✅업데이트 된 책(판매중인 책 : {len(visible_books)}권)")
         edited_df = st.data_editor(df, num_rows="dynamic")
         st.session_state["uploaded_excel_df"] = edited_df
@@ -68,4 +60,4 @@ def fetch_books_by_company():
         "pages": "쪽수"
     }, inplace=True)
 
-    return df
+    return df[["도서명", "설명", "가격", "출판일", "저자", "출판사", "공개여부", "ISBN", "쪽수"]]
