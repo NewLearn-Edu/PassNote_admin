@@ -1,5 +1,6 @@
 import os
 import tkinter as tk
+import tkinter.scrolledtext as scrolledtext
 from tkinter import filedialog, messagebox
 import pandas as pd
 from PyPDF2 import PdfReader, PdfWriter
@@ -7,6 +8,7 @@ import zipfile
 import random
 import fitz  # PyMuPDF
 import sys
+import threading
  
 sys.setrecursionlimit(sys.getrecursionlimit() * 5)
 
@@ -41,8 +43,11 @@ def encrypt_pdfs():
 
         save_path = os.path.join(os.path.dirname(folder_path), "passNote_Upload")
         os.makedirs(save_path, exist_ok=True)
+        log("EXCEL 파일 생성 완료")
 
+        log("암호화 시작")
         for pdf_file in pdf_files:
+            log(f"{pdf_file} 암호화 시작")
             name_without_ext = os.path.splitext(pdf_file)[0]
             full_pdf_path = os.path.join(folder_path, pdf_file)
 
@@ -87,8 +92,9 @@ def encrypt_pdfs():
             os.remove(jpg_path)
             os.remove(preview_path)
             os.remove(encrypted_path)
+            log(f"{pdf_file} 암호화 완료")
             
-            print(f"생성 완료: {zip_path}")
+        log(f"생성 완료: {save_path}")
 
         if save_path:
             excel_path = os.path.join(save_path, "upload.xlsx")
@@ -106,17 +112,29 @@ def encrypt_pdfs():
             for file in os.listdir(save_path):
                 if file.endswith(".zip") and file != "all_books.zip":
                     os.remove(os.path.join(save_path, file))
-
+        log("최종 업로드 파일 생성 완료")
 
     except Exception as e:
         messagebox.showerror("에러 발생", str(e))
 
+def log(message):
+    log_text.config(state='normal')
+    log_text.insert(tk.END, message + '\n')
+    log_text.see(tk.END)
+    log_text.config(state='disabled')
+    root.update_idletasks()
+
 # GUI 구성
 root = tk.Tk()
 root.title("PDF 암호화 도구")
-root.geometry("400x200")
+root.geometry("500x300")
 
-btn = tk.Button(root, text="pdf 폴더 선", command=encrypt_pdfs, width=20, height=2)
-btn.pack(padx=20, pady=20)
+
+btn = tk.Button(root, text="pdf 폴더 선택", command=encrypt_pdfs, width=15, height=2)
+btn.pack(padx=20, pady=10)
+
+
+log_text = scrolledtext.ScrolledText(root, width = 60, height=15, state="disabled")
+log_text.pack(padx=10, pady=10)
 
 root.mainloop()
