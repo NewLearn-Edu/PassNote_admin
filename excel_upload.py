@@ -28,7 +28,9 @@ def show():
         if uploaded_excel is not None and uploaded_zip is not None:
             excel_bytes = uploaded_excel.read()
 
-            response = upload(excel_bytes, uploaded_zip)
+            unzip_file = unzip(uploaded_zip)
+
+            response = upload(excel_bytes, unzip_file)
             
             if response is not None:
                 st.success("✅ 구매내역이 세션에 저장되었습니다.")
@@ -58,13 +60,12 @@ def upload(excel_file: bytes, zip_files: list):
     files = [
         ("file", ("books.xlsx", excel_file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
     ]
-    for zip_file in zip_files:
-        print(zip_file)
-    #     files.append(("file", (f"book{i + 1}.zip", zip_file, "application/zip")))
+    for name, zip_file in zip_files:
+        files.append(("zips", (name, zip_file, "application/zip")))
 
-    # response = requests.post(url, headers=headers, files=files)
-    # print(response)
-    # return response
+    response = requests.post(url, headers=headers, files=files)
+    print(response.text)
+    return response
 
 def unzip(uploaded_zip):
     if uploaded_zip is not None:
