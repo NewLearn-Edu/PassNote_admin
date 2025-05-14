@@ -8,7 +8,6 @@ API_BASE = "http://prod-alb-949821740.ap-northeast-2.elb.amazonaws.com"
 def show():
     st.subheader("🏠 홈")
     st.write("이곳은 관리자 홈 화면입니다.")
-    st.info("필요한 요약 정보 또는 알림을 여기에 표시할 수 있습니다.")
     
     df = fetch_books_by_company()
     

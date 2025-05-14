@@ -43,7 +43,7 @@ def show():
         st.bar_chart(sorted_books_for_chart.sort_values(by="구매수", ascending=False).head(top_n))
 
     else:
-        st.warning("업로드된 데이터 또는 구매내역이 없습니다. '엑셀 업로드' 탭에서 파일을 업로드하고 저장하세요.")
+        st.warning("구매내역이 없습니다.")
 
 def fetch_purchase_history(api_url: str, token: str) -> pd.DataFrame:
     headers = {

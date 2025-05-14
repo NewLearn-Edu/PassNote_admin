@@ -8,7 +8,11 @@ def show():
     st.title("📊 관리자 대시보드")
 
     # 사이드바 내비게이션
-    menu = st.sidebar.radio("📂 메뉴 선택", ["홈", "사용자 통계", "분기별 판매량", "엑셀 업로드"])
+    if  st.session_state.get("username") == "sognodigitalhub":
+        menu = st.sidebar.radio("📂 메뉴 선택", ["홈", "사용자 통계", "분기별 판매량"])
+    else: 
+        menu = st.sidebar.radio("📂 메뉴 선택", ["홈", "사용자 통계", "분기별 판매량", "책 업로드"])
+
     print(st.session_state.get("username"))
     if menu == "홈":
         home.show()
@@ -16,5 +20,5 @@ def show():
         user.show()
     elif menu == "분기별 판매량":
         sale.show()
-    elif menu == "엑셀 업로드" and st.session_state.get("username") != "songodigitalhub":
+    elif menu == "책 업로드":
         excel_upload.show()
