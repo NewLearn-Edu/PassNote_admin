@@ -16,5 +16,5 @@ def show():
         user.show()
     elif menu == "분기별 판매량":
         sale.show()
-    elif menu == "엑셀 업로드":
+    elif menu == "엑셀 업로드" and st.session_state.get("username") != "songodigitalhub":
         excel_upload.show()

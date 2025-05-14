@@ -19,14 +19,14 @@ def show():
         edited_df = st.data_editor(df, num_rows="dynamic")
         st.session_state["uploaded_excel_df"] = edited_df
     else:
-        st.warning("📁 업로드된 엑셀 파일이 없습니다. '엑셀 업로드' 탭에서 파일을 업로드하고 저장하세요.")
+        st.warning("📁 업로드 내역이 없습니다.")
 
 def fetch_books_by_company():
     url = f"{API_BASE}/api/books/company"
 
     token = st.session_state.get("token")
     if not token:
-        st.error("토큰이 세션에 존재하지 않습니다. 먼저 로그인하세요.")
+        st.error("토큰이 세션에 존재하지 않습니다. 재로그인하세요.")
         return
 
     headers = {
