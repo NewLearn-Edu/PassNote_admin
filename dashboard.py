@@ -9,7 +9,7 @@ def show():
 
     # 사이드바 내비게이션
     menu = st.sidebar.radio("📂 메뉴 선택", ["홈", "사용자 통계", "분기별 판매량", "엑셀 업로드"])
-
+    print(st.session_state.get("username"))
     if menu == "홈":
         home.show()
     elif menu == "사용자 통계":
