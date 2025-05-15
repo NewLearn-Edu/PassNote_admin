@@ -24,26 +24,31 @@ def show():
     with col_zip:
         uploaded_zip = st.file_uploader(".zip 파일을 업로드하세요", type=["zip"], key="zip")
 
-    if st.button("💾 저장하기"):
-        if uploaded_excel is not None and uploaded_zip is not None:
-            excel_bytes = uploaded_excel.read()
-
-            unzip_file = unzip(uploaded_zip)
-
-            response = upload(excel_bytes, unzip_file)
-            
-            if response is not None:
-                st.success("✅ 구매내역이 세션에 저장되었습니다.")
-            else:
-                st.write(f"서버 응답: {response.status_code} {response.text}")
-
     if uploaded_excel is not None:
         try:
             df = pd.read_excel(uploaded_excel)
+            df["Description"] = df["Description"].fillna(" ")
+            df["PublicationDate"] = pd.to_datetime(df["PublicationDate"].astype(str), format="%Y%m%d", errors='coerce').dt.strftime("%Y-%m-%d")
+            
+            buffer = io.BytesIO()
+            df.to_excel(buffer, index=False)
+            buffer.seek(0)
+            excel_bytes = buffer.read()
+
             st.markdown(f"### 📊 업로드된 엑셀 테이블 ({len(df)} 개)")
             st.dataframe(df)
         except Exception as e:
             st.error(f"엑셀 파일 처리 중 오류 발생: {e}")
+
+    if uploaded_excel is not None and uploaded_zip is not None:
+        if st.button("💾 저장하기"):
+            unzip_file = unzip(uploaded_zip)
+            response = upload(excel_bytes, unzip_file)
+            
+            if response is not None and response.status_code == 200:
+                st.success("✅ 구매내역이 세션에 저장되었습니다.")
+            else:
+                st.write(f"서버 응답: {response.text}")
 
 def upload(excel_file: bytes, zip_files: list):
     url = f"{API_BASE}/upload"
