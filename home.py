@@ -15,8 +15,7 @@ def show():
         visible_books = df[df["공개여부"] == True]
 
         st.markdown(f"### ✅업데이트 된 책(판매중인 책 : {len(visible_books)}권)")
-        edited_df = st.data_editor(df, num_rows="dynamic")
-        st.session_state["uploaded_excel_df"] = edited_df
+        st.dataframe(df)
     else:
         st.warning("📁 업로드 내역이 없습니다.")
 
