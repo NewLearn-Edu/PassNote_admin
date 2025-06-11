@@ -15,6 +15,7 @@ from Crypto.Util.Padding import pad
 import base64
 import io
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
  
 sys.setrecursionlimit(sys.getrecursionlimit() * 5)
@@ -40,7 +41,6 @@ def encrypt_pdfs():
 
         # Create a DataFrame with required columns
         columns = ["Name", "Description", "Author", "Publisher", "PublicationDate", "Price", "Pages", "ISBN"]
-        data = []
 
         # Save path is set to folder_path (where PDFs are located)
         save_path = os.path.join(os.path.dirname(folder_path), "passNote_Upload")
@@ -48,10 +48,8 @@ def encrypt_pdfs():
         log("EXCEL 파일 생성 완료")
 
         log("암호화 시작")
-        for pdf_file in pdf_files:
-            progress["value"] += 1
-            progress_status.config(text=f"{int(progress['value'])} / {len(pdf_files)} 완료됨")
-            root.update_idletasks()
+
+        def process_pdf_file(pdf_file):
             name_without_ext = os.path.splitext(pdf_file)[0]
             full_pdf_path = os.path.join(folder_path, pdf_file)
 
@@ -75,9 +73,7 @@ def encrypt_pdfs():
             log(f"{pdf_file} 미리보기 생성중")
             num_pages = len(reader.pages)
 
-            name_without_ext = os.path.splitext(pdf_file)[0]
             row = [name_without_ext, "", "", "", "", "", num_pages, ""]
-            data.append(row)
 
             num_preview_pages = max(1, int(num_pages * 0.1))
             sampled_indices = sorted(random.sample(range(num_pages), num_preview_pages))
@@ -124,10 +120,22 @@ def encrypt_pdfs():
             os.remove(preview_path)
             os.remove(encrypted_path)
             log(f"{pdf_file} 암호화 완료")
-            
+            return row
+
+        with ThreadPoolExecutor() as executor:
+            futures = [executor.submit(process_pdf_file, pdf_file) for pdf_file in pdf_files]
+            for future in as_completed(futures):
+                result = future.result()  # can handle errors or progress if needed
+                progress["value"] += 1
+                progress_status.config(text=f"{int(progress['value'])} / {len(pdf_files)} 완료됨")
+                root.update_idletasks()
+
+        data = [future.result() for future in futures]
+
         df = pd.DataFrame(data, columns=columns)
-        log(f"생성 완료: {save_path}")
         
+        
+        log(f"최종파일 저장중(저장위치: {save_path})")
         if save_path:
             excel_path = os.path.join(save_path, "upload.xlsx")
             df.to_excel(excel_path, index=False)
