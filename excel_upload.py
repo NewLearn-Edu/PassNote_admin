@@ -9,13 +9,22 @@ API_BASE = "http://prod-alb-949821740.ap-northeast-2.elb.amazonaws.com"
 
 def show():
     col_for_mac, col_for_window = st.columns(2)
-    with col_for_mac:
+
+    with col_for_window:
         st.download_button(
-            label="📥 암호화 실행기 for window",
-            data=open("main.exe", 'rb').read(),  # 파일을 바이너리 모드로 읽어 data로 전달
-            file_name="main.exe",  # 다운로드될 파일 이름
+            label="📥 암호화 실행기 for Window",
+            data=open("make_for_mac.zip", 'rb').read(),  # 파일을 바이너리 모드로 읽어 data로 전달
+            file_name="make_for_mac.zip",  # 다운로드될 파일 이름
             mime="application/octet-stream"  # EXE 파일의 MIME 타입
         )
+
+    # with col_for_mac:
+    #     st.download_button(
+    #         label="📥 암호화 실행기 for Mac",
+    #         data=open("make_for_mac.zip", 'rb').read(),  # 파일을 바이너리 모드로 읽어 data로 전달
+    #         file_name="make_for_mac.zip",  # 다운로드될 파일 이름
+    #         mime="application/octet-stream"  # EXE 파일의 MIME 타입
+    #     )
 
     st.subheader("📄 업로드 파일 업로드")
     col_excel, col_zip = st.columns(2)
