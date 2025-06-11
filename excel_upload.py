@@ -13,8 +13,8 @@ def show():
     with col_for_window:
         st.download_button(
             label="📥 암호화 실행기 for Window",
-            data=open("make_for_mac.zip", 'rb').read(),  # 파일을 바이너리 모드로 읽어 data로 전달
-            file_name="make_for_mac.zip",  # 다운로드될 파일 이름
+            data=open("make_for_window.exe", 'rb').read(),  # 파일을 바이너리 모드로 읽어 data로 전달
+            file_name="make_for_window.exe",  # 다운로드될 파일 이름
             mime="application/octet-stream"  # EXE 파일의 MIME 타입
         )
 
