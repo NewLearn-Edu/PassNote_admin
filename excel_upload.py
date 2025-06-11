@@ -8,7 +8,7 @@ import requests
 API_BASE = "http://prod-alb-949821740.ap-northeast-2.elb.amazonaws.com"
 
 def show():
-    col_for_mac, col_for_window = st.columns(2)
+    col_for_window, col_for_mac = st.columns(2)
 
     with col_for_window:
         st.download_button(
