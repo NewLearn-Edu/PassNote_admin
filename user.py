@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
 
-API_BASE = "http://prod-alb-949821740.ap-northeast-2.elb.amazonaws.com"
-
 def show():
     st.subheader("📈 사용자 통계")
     

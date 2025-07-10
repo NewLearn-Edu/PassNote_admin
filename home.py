@@ -3,8 +3,6 @@ import pandas as pd
 import random
 import requests
 
-API_BASE = "http://prod-alb-949821740.ap-northeast-2.elb.amazonaws.com"
-
 def show():
     st.subheader("🏠 홈")
     st.write("이곳은 관리자 홈 화면입니다.")
@@ -20,6 +18,7 @@ def show():
         st.warning("📁 업로드 내역이 없습니다.")
 
 def fetch_books_by_company():
+    API_BASE = st.session_state.get("API_BASE")
     url = f"{API_BASE}/api/books/company"
 
     token = st.session_state.get("token")
@@ -34,7 +33,6 @@ def fetch_books_by_company():
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        print(response.text)
         st.error(f"도서 정보를 가져오지 못했습니다. 상태 코드: {response.status_code}")
         return pd.DataFrame()
 

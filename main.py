@@ -2,7 +2,11 @@ import streamlit as st
 import requests
 import dashboard
 
-API_BASE = "http://prod-alb-949821740.ap-northeast-2.elb.amazonaws.com"
+st.session_state["API_BASE"] = "https://api.newlearn-soft.com"
+
+# "https://api.newlearn-soft.com"
+# "http://prod-alb-949821740.ap-northeast-2.elb.amazonaws.com"
+# "http://pass-note-test-292308915.ap-northeast-2.elb.amazonaws.com/"
 
 st.set_page_config(
     page_title="패스노트 관리자 페이지",
@@ -13,6 +17,7 @@ st.set_page_config(
 
 # 로그인 함수
 def login(username, password):
+    API_BASE = st.session_state.get("API_BASE")
     url = f"{API_BASE}/distributor/login"
     try:
         response = requests.post(url, json={
@@ -24,6 +29,7 @@ def login(username, password):
             st.session_state.logged_in = True
             st.session_state.username = username
             st.session_state.token = response.cookies["distributorToken"]
+            print(response.cookies["distributorToken"])
             st.success("로그인 성공!")
             st.rerun()
         else:

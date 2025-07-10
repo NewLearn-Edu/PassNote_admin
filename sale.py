@@ -3,11 +3,10 @@ import pandas as pd
 import calendar
 import requests
 
-API_BASE = "http://prod-alb-949821740.ap-northeast-2.elb.amazonaws.com"
-
 def show():
     st.subheader("📆 분기별 판매량")
     
+    API_BASE = st.session_state.get("API_BASE")
     api_url = f"{API_BASE}/api/books/company/purchase/history"
     
     try:

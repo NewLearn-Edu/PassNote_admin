@@ -86,7 +86,7 @@ def encrypt_pdfs():
 
             # 4. Encrypt original full PDF
             log(f"{pdf_file} 암호화 중")
-            
+
             # Save full PDF to bytes
             buffer = io.BytesIO()
             writer_full.write(buffer)
