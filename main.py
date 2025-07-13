@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import dashboard
 
-st.session_state["API_BASE"] = "https://api.newlearn-soft.com"
+st.session_state["API_BASE"] = "https://api.newlearn-soft.com"  # "http://pass-note-test-292308915.ap-northeast-2.elb.amazonaws.com"
 
 # "https://api.newlearn-soft.com"
 # "http://prod-alb-949821740.ap-northeast-2.elb.amazonaws.com"

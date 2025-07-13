@@ -6,11 +6,8 @@ import requests
 def show():
     st.subheader("📆 분기별 판매량")
     
-    API_BASE = st.session_state.get("API_BASE")
-    api_url = f"{API_BASE}/api/books/company/purchase/history"
-    
     try:
-        df = fetch_purchase_history(api_url)
+        df = fetch_purchase_history()
     except Exception as e:
         st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {e}")
         return
@@ -25,6 +22,8 @@ def show():
     # 현재 연도 기준 필터링
     current_year = pd.Timestamp.today().year
     df = df[df["년도"] == current_year]
+
+    print(df)
 
     options = {
         "1분기": [1, 2, 3],
@@ -77,20 +76,20 @@ def show():
     month_counts = filtered_df["월"].value_counts().sort_index()
     st.bar_chart(month_counts)
 
-def fetch_purchase_history(api_url: str) -> pd.DataFrame:
+def fetch_purchase_history() -> pd.DataFrame:
+    API_BASE = st.session_state.get("API_BASE")
+    url = f"{API_BASE}/api/books/company/purchase/history"
+
     token = st.session_state.get("token")
     if not token:
-        st.error("토큰이 세션에 존재하지 않습니다. 먼저 로그인하세요.")
-        df = pd.DataFrame(columns=["회원명", "도서명", "가격", "구매일", "환불여부"])
-        return df
-    
+        st.error("토큰이 세션에 존재하지 않습니다. 재로그인하세요.")
+        return
 
     headers = {
-        "Authorization": f"Bearer {token}",
-        "Accept": "application/json"
+        "Authorization": f"Bearer {token}"
     }
 
-    response = requests.post(api_url, headers=headers)
+    response = requests.post(url, headers=headers)
 
     if response.status_code != 200:
         raise Exception(f"API 호출 실패: {response.status_code}, {response.text}")
@@ -99,8 +98,9 @@ def fetch_purchase_history(api_url: str) -> pd.DataFrame:
 
     # 예시 데이터에서 사용하는 컬럼 이름에 맞게 변환
     df = pd.DataFrame(data)
-    
+
     if df.empty:
+        st.warning("구매내역이 없습니다.")
         df = pd.DataFrame(columns=["회원명", "도서명", "가격", "구매일", "환불여부"])
         return df
 
