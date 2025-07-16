@@ -10,6 +10,15 @@ def show():
 
     if not df.empty:
         st.markdown(f"### ✅ 총 회원 수: {len(df)}명")
+
+        # 👉 직렬별 수 출력
+        st.markdown("### 📚 직렬별 회원 수")
+        career_counts = df["직렬"].value_counts().reset_index()
+        career_counts.columns = ["직렬", "회원 수"]
+        st.dataframe(career_counts, use_container_width=True)
+
+        # 👉 전체 회원 테이블 출력
+        st.markdown("### 📋 전체 회원 정보")
         st.dataframe(df, use_container_width=True)
     else:
         st.warning("🙅 회원 정보가 없습니다.")
