@@ -7,37 +7,31 @@ def show():
 
     df = fetch_purchase_history()
     
-    purchase_counts = df["도서명"].value_counts().reset_index()
-    purchase_counts.columns = ["도서명", "구매수"]
-    df = df.merge(purchase_counts, on="도서명", how="left")
-    df["구매수"] = df["구매수"].fillna(0).astype(int)
 
-    st.write(f"총 판매량: {df['구매수'].sum():,}권")
-    st.write(f"평균 판매량: {df['구매수'].mean():.2f}권")
-    st.write(f"중간값: {df['구매수'].median()}권")
-    st.write(f"최댓값: {df['구매수'].max()}권 / 최솟값: {df['구매수'].min()}권")
+    total_sales = len(df)
+    total_revenue = df["가격"].sum()
+    free_user_count = (df["가격"] == 0).sum()
 
-    if "노출" in df.columns:
-        visible_avg = df[df["노출"] == True]["구매수"].mean()
-        hidden_avg = df[df["노출"] == False]["구매수"].mean()
-        st.write(f"노출된 책 평균 판매량: {visible_avg:.2f}권")
-        st.write(f"숨겨진 책 평균 판매량: {hidden_avg:.2f}권")
+    st.markdown(f"**총 판매 수량:** {total_sales:,}권")
+    st.markdown(f"**무료 제공자 수:** {free_user_count:,}명")
+    st.markdown(f"**총 판매 금액:** ₩{int(total_revenue):,}")
+
 
     st.markdown("### 🧾 구매 기록 테이블")
     st.dataframe(df)
 
-    # Removed old title markdown; will add updated title after top_n is defined.
     st.markdown(f"### 🏆 책 판매량")
-    top_books = df.groupby("도서명")["구매수"].sum().reset_index()
-    sorted_books = top_books.sort_values(by="구매수", ascending=False)
-    
+
+    book_sales = df.groupby("도서명").size().reset_index(name="판매량")
+    sorted_books = book_sales.sort_values(by="판매량", ascending=False)
+
     top_n = st.slider("그래프에 표시할 상위 책 개수", min_value=1, max_value=len(sorted_books), value=10)
-    
+
     st.markdown(f"#### 🏆 많이 팔린 책 TOP {top_n}")
     st.dataframe(sorted_books.head(top_n))
 
     sorted_books_for_chart = sorted_books.set_index("도서명")
-    st.bar_chart(sorted_books_for_chart.sort_values(by="구매수", ascending=False).head(top_n))
+    st.bar_chart(sorted_books_for_chart.head(top_n))
 
 def fetch_purchase_history() -> pd.DataFrame:
     API_BASE = st.session_state.get("API_BASE")
