@@ -13,7 +13,7 @@ def show():
     free_user_count = (df["가격"] == 0).sum()
 
     st.markdown(f"**총 판매 수량:** {total_sales:,}권")
-    st.markdown(f"**무료 제공자 수:** {free_user_count:,}명")
+    st.markdown(f"**무료 제공 수:** {free_user_count:,}권")
     st.markdown(f"**총 판매 금액:** ₩{int(total_revenue):,}")
 
 
