@@ -2,8 +2,9 @@ import streamlit as st
 import requests
 import dashboard
 
-st.session_state["API_BASE"] = "https://api.newlearn-soft.com"  # "http://pass-note-test-292308915.ap-northeast-2.elb.amazonaws.com"
+st.session_state["API_BASE"] = "http://localhost:3000" # "https://api.newlearn-soft.com"  # "http://pass-note-test-292308915.ap-northeast-2.elb.amazonaws.com"
 
+# "http://localhost:3000"
 # "https://api.newlearn-soft.com"
 # "http://prod-alb-949821740.ap-northeast-2.elb.amazonaws.com"
 # "http://pass-note-test-292308915.ap-northeast-2.elb.amazonaws.com/"
@@ -24,12 +25,13 @@ def login(username, password):
             "email": username,
             "password": password
         })
-        
+
         if response.status_code == 200 and "distributorToken" in response.cookies:
+            response_data = response.json()
             st.session_state.logged_in = True
-            st.session_state.username = username
+            st.session_state.username = response_data.get("name")
             st.session_state.token = response.cookies["distributorToken"]
-            print(response.cookies["distributorToken"])
+            st.session_state.companytype = response_data.get("type")
             st.success("로그인 성공!")
             st.rerun()
         else:

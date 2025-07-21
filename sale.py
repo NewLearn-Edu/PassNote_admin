@@ -7,7 +7,12 @@ def show():
     st.subheader("📆 분기별 판매량")
     
     try:
-        df = fetch_purchase_history()
+        companytype = st.session_state.get("companytype")
+        if companytype == "book":
+            df = fetch_book_purchase_history()
+        elif companytype == "template":
+            df = fetch_template_purchase_history()
+            
     except Exception as e:
         st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {e}")
         return
@@ -35,7 +40,15 @@ def show():
         "전기": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     }
 
-    period = st.radio("기간 선택", list(options.keys()) + ["직접 기간 선택"], horizontal=True)
+    # 현재 달이 속한 분기 자동 선택
+    current_month = pd.Timestamp.today().month
+    default_period = None
+    for key, months in options.items():
+        if current_month in months:
+            default_period = key
+            break
+
+    period = st.radio("기간 선택", list(options.keys()) + ["직접 기간 선택"], horizontal=True, index=list(options.keys()).index(default_period))
 
     if period != "직접 기간 선택":
         selected_months = options[period]
@@ -76,9 +89,9 @@ def show():
     month_counts = filtered_df["월"].value_counts().sort_index()
     st.bar_chart(month_counts)
 
-def fetch_purchase_history() -> pd.DataFrame:
+def fetch_book_purchase_history() -> pd.DataFrame:
     API_BASE = st.session_state.get("API_BASE")
-    url = f"{API_BASE}/api/books/company/purchase/history"
+    url = f"{API_BASE}/books/purchases"
 
     token = st.session_state.get("token")
     if not token:
@@ -89,7 +102,7 @@ def fetch_purchase_history() -> pd.DataFrame:
         "Authorization": f"Bearer {token}"
     }
 
-    response = requests.post(url, headers=headers)
+    response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
         raise Exception(f"API 호출 실패: {response.status_code}, {response.text}")
@@ -108,8 +121,49 @@ def fetch_purchase_history() -> pd.DataFrame:
         "memberName": "회원명",
         "bookName": "도서명",
         "price": "가격",
-        "createdAt": "구매일",
-        "isRefunded": "환불여부"
+        "created_at": "구매일",
+        "is_refunded": "환불여부"
+    }, inplace=True)
+
+    df["구매일"] = pd.to_datetime(df["구매일"])
+    df["가격"] = pd.to_numeric(df["가격"], errors="coerce")
+    
+    return df
+
+def fetch_template_purchase_history() -> pd.DataFrame:
+    API_BASE = st.session_state.get("API_BASE")
+    url = f"{API_BASE}/template/purchases"
+
+    token = st.session_state.get("token")
+    if not token:
+        st.error("토큰이 세션에 존재하지 않습니다. 재로그인하세요.")
+        return
+
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code != 200:
+        raise Exception(f"API 호출 실패: {response.status_code}, {response.text}")
+
+    data = response.json()  # 예: list of dicts
+
+    # 예시 데이터에서 사용하는 컬럼 이름에 맞게 변환
+    df = pd.DataFrame(data)
+    
+    if df.empty:
+        st.warning("구매내역이 없습니다.")
+        df = pd.DataFrame(columns=["회원명", "속지명", "가격", "구매일", "환불여부"])
+        return df
+
+    df.rename(columns={
+        "memberName": "회원명",
+        "templateName": "속지명",
+        "price": "가격",
+        "created_at": "구매일",
+        "is_refunded": "환불여부"
     }, inplace=True)
 
     df["구매일"] = pd.to_datetime(df["구매일"])
