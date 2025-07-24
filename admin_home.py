@@ -14,6 +14,8 @@ def show():
     # 총 회원 수
     total_members = data["totalMembers"]
     st.write(f"👥 총 회원 수: {total_members}명")
+    total_charge_point = data["totalChargePoint"]
+    st.write(f"🔋 총 충전 금액: {total_charge_point:,}원")
 
     # 총 판매 중인 책 수
     total_books = data["totalBooks"]
@@ -50,6 +52,9 @@ def fetch_admin_statistics() -> pd.DataFrame:
         st.error("토큰이 세션에 존재하지 않습니다. 재로그인하세요.")
         return
 
+
+    print(token)
+    
     headers = {
         "Authorization": f"Bearer {token}"
     }
