@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import requests
+import datetime
 
 def show():
     st.subheader("👤 회원 목록")
@@ -20,6 +21,21 @@ def show():
         # 👉 전체 회원 테이블 출력
         st.markdown("### 📋 전체 회원 정보")
         st.dataframe(df, use_container_width=True)
+
+        # 👉 일별 가입자 수 선그래프
+        today = datetime.date.today()
+        one_month_ago = today - datetime.timedelta(days=30)
+
+        # 👉 최근 한 달간 가입자만 필터링
+        df_recent = df[df["가입일자"].dt.date >= one_month_ago]
+
+        # 👉 일별 가입자 수 집계
+        df_daily = df_recent["가입일자"].dt.date.value_counts().sort_index()
+        df_daily = df_daily.rename_axis("가입일").reset_index(name="가입자 수")
+
+        # 👉 선그래프 출력
+        st.markdown("### 📈 최근 한 달간 일별 가입자 수 추이")
+        st.line_chart(df_daily.set_index("가입일"))
     else:
         st.warning("🙅 회원 정보가 없습니다.")
 
