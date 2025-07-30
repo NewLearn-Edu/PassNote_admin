@@ -69,11 +69,10 @@ def fetch_book_purchase_history() -> pd.DataFrame:
 
     if df.empty:
         st.warning("구매내역이 없습니다.")
-        df = pd.DataFrame(columns=["회원명", "도서명", "가격", "구매일", "환불여부"])
+        df = pd.DataFrame(columns=["도서명", "가격", "구매일", "환불여부"])
         return df
 
     df.rename(columns={
-        "memberName": "회원명",
         "bookName": "도서명",
         "price": "가격",
         "created_at": "구매일",
@@ -110,11 +109,10 @@ def fetch_template_purchase_history() -> pd.DataFrame:
 
     if df.empty:
         st.warning("구매내역이 없습니다.")
-        df = pd.DataFrame(columns=["회원명", "속지명", "가격", "구매일", "환불여부"])
+        df = pd.DataFrame(columns=["속지명", "가격", "구매일", "환불여부"])
         return df
 
     df.rename(columns={
-        "memberName": "회원명",
         "templateName": "속지명",
         "price": "가격",
         "created_at": "구매일",

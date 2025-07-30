@@ -46,7 +46,7 @@ def fetch_books_by_company():
     df = pd.DataFrame(books)
     
     if df.empty:
-        df = pd.DataFrame(columns=["회원명", "도서명", "가격", "구매일", "환불여부"])
+        df = pd.DataFrame(columns=["도서명", "가격", "구매일", "환불여부"])
         return df
 
     df.rename(columns={
