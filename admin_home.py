@@ -51,9 +51,6 @@ def fetch_admin_statistics() -> pd.DataFrame:
     if not token:
         st.error("토큰이 세션에 존재하지 않습니다. 재로그인하세요.")
         return
-
-
-    print(token)
     
     headers = {
         "Authorization": f"Bearer {token}"

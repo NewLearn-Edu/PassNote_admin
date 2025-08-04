@@ -112,11 +112,12 @@ def fetch_book_purchase_history() -> pd.DataFrame:
 
     if df.empty:
         st.warning("구매내역이 없습니다.")
-        df = pd.DataFrame(columns=["도서명", "가격", "구매일", "환불여부"])
+        df = pd.DataFrame(columns=["도서명", "출판사", "가격", "구매일", "환불여부"])
         return df
 
     df.rename(columns={
         "bookName": "도서명",
+        "publisher": "출판사",
         "price": "가격",
         "created_at": "구매일",
         "is_refunded": "환불여부"

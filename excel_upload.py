@@ -89,7 +89,6 @@ def upload(excel_file: bytes, zip_files: list):
         files.append(("file", (name, zip_file, "application/zip")))
 
     response = requests.post(url, headers=headers, files=files)
-    print(response.text)
     return response
 
 def unzip(uploaded_zip):

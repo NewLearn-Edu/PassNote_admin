@@ -20,7 +20,7 @@ def show():
     free_user_count = (df["가격"] == 0).sum()
 
     st.markdown(f"**총 판매 수량:** {total_sales:,}권")
-    st.markdown(f"**무료 제공 수:** {free_user_count:,}권")
+    # st.markdown(f"**무료 제공 수:** {free_user_count:,}권")
     st.markdown(f"**총 판매 금액:** {int(total_revenue):,}")
 
 
@@ -66,14 +66,15 @@ def fetch_book_purchase_history() -> pd.DataFrame:
 
     # 예시 데이터에서 사용하는 컬럼 이름에 맞게 변환
     df = pd.DataFrame(data)
-
+    
     if df.empty:
         st.warning("구매내역이 없습니다.")
-        df = pd.DataFrame(columns=["도서명", "가격", "구매일", "환불여부"])
+        df = pd.DataFrame(columns=["도서명", "출판사", "가격", "구매일", "환불여부"])
         return df
 
     df.rename(columns={
         "bookName": "도서명",
+        "publisher": "출판사",
         "price": "가격",
         "created_at": "구매일",
         "is_refunded": "환불여부"
