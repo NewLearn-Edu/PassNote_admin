@@ -31,6 +31,8 @@ def show():
 
         # 👉 일별 가입자 수 집계
         df_daily = df_recent["가입일자"].dt.date.value_counts().sort_index()
+        all_days = pd.date_range(start=one_month_ago, end=today, freq="D")
+        df_daily = df_daily.reindex(all_days.date, fill_value=0)
         df_daily = df_daily.rename_axis("가입일").reset_index(name="가입자 수")
 
         # 👉 선그래프 출력
