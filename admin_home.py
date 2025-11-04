@@ -13,7 +13,11 @@ def show():
 
     # 총 회원 수
     total_members = data["totalMembers"]
-    st.write(f"👥 총 회원 수: {total_members}명")
+    current_members = data["currentMembers"]
+    delete_members = data["deleteMembers"]
+    st.write(f"👥 누적 가입자 수: {total_members}명")
+    st.write(f"👥 현 회원 수: {current_members}명")
+    st.write(f"👥 회원탈퇴 수: {delete_members}명")
     total_charge_point = data["totalChargePoint"]
     st.write(f"🔋 총 충전 금액: {total_charge_point:,}원")
 
