@@ -206,3 +206,9 @@ coverage/
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+
+my-passnote-api/src/firebase/*.json
+my-passnote-api/src/pass-note.pem
+my-passnote-api/.env
+my-passnote-api/node_modules/
+my-passnote-api/dist/
