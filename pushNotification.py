@@ -1,8 +1,10 @@
 import streamlit as st
 import requests
+import demo_mode
 
 def show():
     st.markdown("## 🔔 푸시 알림 전송")
+    demo_mode.show_demo_banner()
 
     # 제목과 내용 입력
     title = st.text_input("제목을 입력하세요")
@@ -20,6 +22,11 @@ def show():
     if st.button("✅ 푸시 전송"):
         if not title or not message or not selected_apps:
             st.warning("제목, 내용, 앱을 모두 입력해주세요.")
+            return
+
+        if demo_mode.is_demo_mode():
+            for app_kor in selected_apps:
+                st.success(f"[{app_kor}] 테스트 전송 미리보기 완료")
             return
 
         API_BASE = st.session_state.get("API_BASE")

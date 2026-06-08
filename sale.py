@@ -2,9 +2,11 @@ import streamlit as st
 import pandas as pd
 import calendar
 import requests
+import demo_mode
 
 def show():
     st.subheader("📆 분기별 판매량")
+    demo_mode.show_demo_banner()
     
     try:
         companytype = st.session_state.get("companytype")
@@ -19,6 +21,7 @@ def show():
 
     if df.empty:
         st.warning("구매내역 데이터가 없습니다.")
+        return
 
     df["구매일"] = pd.to_datetime(df["구매일"])
     df["년도"] = df["구매일"].dt.year
@@ -78,7 +81,7 @@ def show():
 
     st.write(f"총 판매 수: {len(filtered_df)}건")
     st.write(f"총 판매 금액: {filtered_df['가격'].sum():,}원")
-    st.write(f"평균 책 가격: {filtered_df['가격'].mean():.2f}원")
+    st.write(f"평균 판매 가격: {filtered_df['가격'].mean():.2f}원")
 
     st.markdown("### 🧾 판매 테이블")
     st.dataframe(filtered_df)
@@ -88,6 +91,9 @@ def show():
     st.bar_chart(month_counts)
 
 def fetch_book_purchase_history() -> pd.DataFrame:
+    if demo_mode.is_demo_mode():
+        return demo_mode.get_demo_book_purchase_history()
+
     API_BASE = st.session_state.get("API_BASE")
     url = f"{API_BASE}/books/purchases"
 
@@ -129,6 +135,9 @@ def fetch_book_purchase_history() -> pd.DataFrame:
     return df
 
 def fetch_template_purchase_history() -> pd.DataFrame:
+    if demo_mode.is_demo_mode():
+        return demo_mode.get_demo_template_purchase_history()
+
     API_BASE = st.session_state.get("API_BASE")
     url = f"{API_BASE}/template/purchases"
 

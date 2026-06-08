@@ -1,9 +1,11 @@
 import streamlit as st
 import pandas as pd
 import requests
+import demo_mode
 
 def show():
     st.subheader("📈 사용자 통계")
+    demo_mode.show_demo_banner()
 
     companytype = st.session_state.get("companytype")
 
@@ -15,17 +17,20 @@ def show():
         st.error("알 수 없는 companytype입니다.")
         df = pd.DataFrame()  # 빈 데이터프레임 처리
 
+    unit_label = "권" if companytype == "book" else "개"
     total_sales = len(df)
     total_revenue = df["가격"].sum()
-    free_user_count = (df["가격"] == 0).sum()
 
-    st.markdown(f"**총 판매 수량:** {total_sales:,}권")
-    # st.markdown(f"**무료 제공 수:** {free_user_count:,}권")
+    st.markdown(f"**총 판매 수량:** {total_sales:,}{unit_label}")
     st.markdown(f"**총 판매 금액:** {int(total_revenue):,}")
 
 
     st.markdown("### 🧾 구매 기록 테이블")
     st.dataframe(df)
+
+    if df.empty:
+        st.warning("구매 기록이 없어 판매량 그래프를 표시하지 않습니다.")
+        return
 
     # 판매량 분석
     label = "도서명" if companytype == "book" else "속지명"
@@ -36,7 +41,12 @@ def show():
     sales = df.groupby(label).size().reset_index(name="판매량")
     sorted_items = sales.sort_values(by="판매량", ascending=False)
 
-    top_n = st.slider(f"그래프에 표시할 상위 {title_prefix} 개수", min_value=1, max_value=len(sorted_items), value=10)
+    top_n = st.slider(
+        f"그래프에 표시할 상위 {title_prefix} 개수",
+        min_value=1,
+        max_value=len(sorted_items),
+        value=min(10, len(sorted_items)),
+    )
 
     st.markdown(f"#### 🏆 많이 팔린 {title_prefix} TOP {top_n}")
     st.dataframe(sorted_items.head(top_n))
@@ -45,6 +55,9 @@ def show():
     st.bar_chart(sorted_items_for_chart.head(top_n))
 
 def fetch_book_purchase_history() -> pd.DataFrame:
+    if demo_mode.is_demo_mode():
+        return demo_mode.get_demo_book_purchase_history()
+
     API_BASE = st.session_state.get("API_BASE")
     url = f"{API_BASE}/books/purchases"
 
@@ -86,6 +99,9 @@ def fetch_book_purchase_history() -> pd.DataFrame:
     return df
 
 def fetch_template_purchase_history() -> pd.DataFrame:
+    if demo_mode.is_demo_mode():
+        return demo_mode.get_demo_template_purchase_history()
+
     API_BASE = st.session_state.get("API_BASE")
     url = f"{API_BASE}/template/purchases"
 

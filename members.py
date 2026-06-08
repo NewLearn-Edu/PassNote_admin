@@ -2,9 +2,11 @@ import streamlit as st
 import pandas as pd
 import requests
 import datetime
+import demo_mode
 
 def show():
     st.subheader("👤 회원 목록")
+    demo_mode.show_demo_banner()
     st.write("현재 등록된 회원 정보를 확인할 수 있습니다.")
 
     df = fetch_members()
@@ -42,6 +44,9 @@ def show():
         st.warning("🙅 회원 정보가 없습니다.")
 
 def fetch_members():
+    if demo_mode.is_demo_mode():
+        return demo_mode.get_demo_members()
+
     url = "http://localhost:3000/members"
 
     try:

@@ -4,8 +4,10 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import requests
+import demo_mode
 
 def show():
+    demo_mode.show_demo_banner()
     col_for_window, col_for_mac = st.columns(2)
 
     with col_for_window:
@@ -41,11 +43,18 @@ def show():
             st.dataframe(df, use_container_width=True)
 
             if uploaded_zip is not None and st.button("💾 저장하기"):
+                unzip_files = unzip(uploaded_zip)
+
+                if demo_mode.is_demo_mode():
+                    st.success(
+                        f"테스트 업로드 시뮬레이션 완료: 엑셀 {len(df)}건, 압축 파일 {len(unzip_files)}건을 화면 예시로 확인했습니다."
+                    )
+                    return
+
                 excel_chunks = [df.iloc[[i]] for i in range(len(df))] # [df[i:i+5] for i in range(0, len(df), 5)]
                 progress_bar = st.progress(0)
                 total = len(excel_chunks)
 
-                unzip_files = unzip(uploaded_zip)
                 for i, chunk in enumerate(excel_chunks):
                     buffer = io.BytesIO()
                     chunk.to_excel(buffer, index=False)

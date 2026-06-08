@@ -1,10 +1,11 @@
 import streamlit as st
 import pandas as pd
-import random
 import requests
+import demo_mode
 
 def show():
     st.subheader("🏠 홈")
+    demo_mode.show_demo_banner()
     st.write("이곳은 관리자 홈 화면입니다.")
     
     companytype = st.session_state.get("companytype")
@@ -23,6 +24,9 @@ def show():
         st.warning("📁 업로드 내역이 없습니다.")
 
 def fetch_books_by_company():
+    if demo_mode.is_demo_mode():
+        return demo_mode.get_demo_books()
+
     API_BASE = st.session_state.get("API_BASE")
     url = f"{API_BASE}/books/company"
 
@@ -64,6 +68,9 @@ def fetch_books_by_company():
     return df[["도서명", "설명", "가격", "출판일", "저자", "출판사", "공개여부", "ISBN", "쪽수"]]
 
 def fetch_template_by_company():
+    if demo_mode.is_demo_mode():
+        return demo_mode.get_demo_templates()
+
     API_BASE = st.session_state.get("API_BASE")
     url = f"{API_BASE}/template/company"
 

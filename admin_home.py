@@ -1,10 +1,11 @@
 import streamlit as st
 import pandas as pd
-import random
 import requests
+import demo_mode
 
 def show():
     st.markdown("### ✅ 관리자 통계 요약")
+    demo_mode.show_demo_banner()
 
     data = fetch_admin_statistics()
     if not data:
@@ -48,6 +49,9 @@ def show():
     st.dataframe(template_sales_by_company)
 
 def fetch_admin_statistics() -> pd.DataFrame:
+    if demo_mode.is_demo_mode():
+        return demo_mode.get_demo_admin_statistics()
+
     API_BASE = st.session_state.get("API_BASE")
     url = f"{API_BASE}/admin/statistics"
 
